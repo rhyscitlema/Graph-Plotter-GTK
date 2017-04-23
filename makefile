@@ -1,85 +1,107 @@
-# C Compiler
-COMPILER = gcc
+# Makefile created by Rhyscitlema
+# Explanation of file structure available at:
+# http://rhyscitlema.com/applications/makefile.html
 
-# folder containing the libraries
-FOLDER = ../
+CALC_OUT_FILE = MFET_Calculator
 
-# additional include files
-INCLUDE_FILES  =    $(FOLDER)lib_std/*.h $(FOLDER)libmfet/*.h $(FOLDER)algorithms/*.h $(FOLDER)read_write_image_file/*.h $(FOLDER)librodt/*h
+GP3D_OUT_FILE = GraphPlotter3D
 
-# additional include folders
-INCLUDE_FOLDER = -I $(FOLDER)lib_std/ -I $(FOLDER)libmfet/ -I $(FOLDER)algorithms/ -I $(FOLDER)read_write_image_file/ -I $(FOLDER)librodt/
+CALC_OBJ_FILES = userinterface/main.o \
+                 userinterface/files.o \
+                 userinterface/keyboard.o \
+                 userinterface/userinterface.o
 
+GP3D_OBJ_FILES = $(CALC_OBJ_FILES) \
+                 userinterface/drawing_window.o
+                 #userinterface/mthread.o
+
+LIBALGO = ../algorithms
+LIB_STD = ../lib_std
+LIBMFET = ../libmfet
+LIBRODT = ../librodt
+LIBRWIF = ../read_write_image_file
+
+#-------------------------------------------------
+
+# C compiler
+CC = gcc
+
+# Linker
+LD = gcc
 
 # GTK library
 GTK = gtk+-3.0
 
-# Compiler flags (all warnings -Wall, optimization level -O3)
-COMPILER_FLAGS = `pkg-config --cflags $(GTK)` $(INCLUDE_FOLDER) -Wall -g -DGTK_API -DLIBPNG -DLIBRODT -DLIB_STD -pthread
+# C compiler flags
+CC_FLAGS = `pkg-config --cflags $(GTK)` \
+           -I$(LIBALGO) \
+           -I$(LIB_STD) \
+           -I$(LIBMFET) \
+           -I$(LIBRODT) \
+           -Wall \
+           $(CFLAGS)
 
-# additional library path and library name
-CUSTOM_LIBRARY = -L $(FOLDER)read_write_image_file/libjpeg -ljpeg -lpng \
-                #-L $(FOLDER)read_write_image_file/libpng -lpng
+# linker flags
+LD_FLAGS = -L$(LIBALGO) \
+           -L$(LIB_STD) \
+           -L$(LIBMFET) \
+           -L$(LIBRODT) \
+           -L$(LIBRWIF) \
+           $(LDFLAGS)
 
-# all libraries (math library is -lm)
-LINKER_FLAGS = `pkg-config --libs $(GTK)` $(CUSTOM_LIBRARY) -lm -pthread
+# needed linker libs.
+# note: the order below matters
+CALC_LD_LIBS = -luidt \
+               -lmfet \
+               -l_std \
+               -lalgo \
+               `pkg-config --libs $(GTK)` \
+               -lm \
+               $(LDLIBS)
 
+GP3D_LD_LIBS = -luidt \
+               -lrodt \
+               -lrwif \
+               -lpng \
+               $(CALC_LD_LIBS)
 
-# object files
-OBJECT_FILES = userinterface/main.o \
-               userinterface/files.o \
-               userinterface/mthread.o \
-               userinterface/keyboard.o \
-               userinterface/userinterface.o \
-               userinterface/drawing_window.o \
-               $(FOLDER)read_write_image_file/rwif.o \
-               $(FOLDER)algorithms/avl.o \
-               $(FOLDER)algorithms/list.o \
-               $(FOLDER)lib_std/_texts.o \
-               $(FOLDER)lib_std/_string.o \
-               $(FOLDER)lib_std/_strfun.o \
-               $(FOLDER)lib_std/_math.o \
-               $(FOLDER)lib_std/_value.o \
-               $(FOLDER)lib_std/_stdio.o \
-               $(FOLDER)lib_std/_malloc.o \
-               $(FOLDER)libmfet/operations.o \
-               $(FOLDER)libmfet/structures.o \
-               $(FOLDER)libmfet/expression.o \
-               $(FOLDER)libmfet/component.o \
-               $(FOLDER)libmfet/mfet.o \
-               $(FOLDER)librodt/object.o \
-               $(FOLDER)librodt/camera.o \
-               $(FOLDER)librodt/surface.o \
-               $(FOLDER)librodt/outsider.o \
-               $(FOLDER)librodt/getimage.o \
-               $(FOLDER)librodt/mouse.o \
-               $(FOLDER)librodt/timer.o \
-               $(FOLDER)librodt/tools.o \
-               $(FOLDER)librodt/userinterface_.o
+#-------------------------------------------------
 
-# software output path and name
-PROGRAM_NAME = ./GraphPlotter3D
+gp3d:
+	$(MAKE) gp3d_objs CFLAGS+="-DLIBRODT"
+	cd $(LIBALGO) && $(MAKE) CFLAGS+="-DLIB_STD -I$(LIB_STD)"
+	cd $(LIB_STD) && $(MAKE) CFLAGS+="-DCOMPLEX"
+	cd $(LIBMFET) && $(MAKE)
+	cd $(LIBRODT) && $(MAKE)
+	cd $(LIBRWIF) && $(MAKE) lib_use_os_png
+	$(LD) $(GP3D_OBJ_FILES) $(LD_FLAGS) $(GP3D_LD_LIBS) -o $(GP3D_OUT_FILE)
 
+gp3d_objs: $(GP3D_OBJ_FILES)
 
-# Build software: link object files and library files into the final software
-default: $(OBJECT_FILES)
-	$(COMPILER) $(OBJECT_FILES) $(LINKER_FLAGS) -o $(PROGRAM_NAME)
-
-# Compile .c files to .o files
-%.o: %.c $(INCLUDE_FILES)
-	$(COMPILER) $(COMPILER_FLAGS) -c -o $@ $<
-
-
-# remove created object files only
-clean:
-	rm -f $(OBJECT_FILES)
+calc: $(CALC_OBJ_FILES)
+	cd $(LIBALGO) && $(MAKE) CFLAGS+="-DLIB_STD -I$(LIB_STD)"
+	cd $(LIB_STD) && $(MAKE) CFLAGS+="-DCOMPLEX"
+	cd $(LIBMFET) && $(MAKE)
+	cd $(LIBRODT) && $(MAKE) uidt
+	$(LD) $(CALC_OBJ_FILES) $(LD_FLAGS) $(CALC_LD_LIBS) -o $(CALC_OUT_FILE)
 
 # remove all created files
-clean_all:
-	rm -f $(OBJECT_FILES)
-	rm -f $(PROGRAM_NAME)
+clean:
+	cd $(LIBALGO) && $(MAKE) clean
+	cd $(LIB_STD) && $(MAKE) clean
+	cd $(LIBMFET) && $(MAKE) clean
+	cd $(LIBRODT) && $(MAKE) clean
+	cd $(LIBRWIF) && $(MAKE) clean
+	$(RM) userinterface/*.o $(CALC_OUT_FILE) $(GP3D_OUT_FILE)
 
-# run software
-run:
-	$(PROGRAM_NAME)
+#-------------------------------------------------
+
+INCLUDE_FILES = $(LIBALGO)/*.h \
+                $(LIB_STD)/*.h \
+                $(LIBMFET)/*.h \
+                $(LIBRODT)/*.h
+
+# compile .c files to .o files
+%.o: %.c $(INCLUDE_FILES)
+	$(CC) $(CC_FLAGS) -c -o $@ $<
 

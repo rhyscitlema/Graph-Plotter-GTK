@@ -65,12 +65,12 @@ static GtkTextBuffer* get_gui_text (enum UI_ITEM ui_item)
     GtkTextBuffer* text_buffer;
     switch(ui_item)
     {
-        case UI_main_text:   text_buffer = gui_main_text_buffer; break;
-        case UI_mesg_text:   text_buffer = gui_mesg_text_buffer; break;
-        case UI_path_text:   text_buffer = gui_path_text_buffer; break;
-        case UI_time_text:   text_buffer = gui_time_text_buffer; break;
-        case UI_calc_input:  text_buffer = gui_calc_input_buffer; break;
-        case UI_calc_result: text_buffer = gui_calc_result_buffer; break;
+        case UI_MAIN_TEXT:   text_buffer = gui_main_text_buffer; break;
+        case UI_MESG_TEXT:   text_buffer = gui_mesg_text_buffer; break;
+        case UI_PATH_TEXT:   text_buffer = gui_path_text_buffer; break;
+        case UI_TIME_TEXT:   text_buffer = gui_time_text_buffer; break;
+        case UI_CALC_INPUT:  text_buffer = gui_calc_input_buffer; break;
+        case UI_CALC_RESULT: text_buffer = gui_calc_result_buffer; break;
         default: text_buffer = NULL; break;
     }
     return text_buffer;
@@ -83,8 +83,8 @@ const mchar* userinterface_get_text (enum UI_ITEM ui_item)
     const char* str=NULL;
     GtkTextIter start, stop;
 
-         if(ui_item==UI_pause_button)   str = gtk_button_get_label((GtkButton*)gui_pause_button);
-    else if(ui_item==UI_forward_button) str = gtk_button_get_label((GtkButton*)gui_forward_button);
+         if(ui_item==UI_PAUSE_BUTTON)   str = gtk_button_get_label((GtkButton*)gui_pause_button);
+    else if(ui_item==UI_FORWARD_BUTTON) str = gtk_button_get_label((GtkButton*)gui_forward_button);
     else
     {   GtkTextBuffer* gui_text = get_gui_text(ui_item);
         if(gui_text)
@@ -99,8 +99,8 @@ const mchar* userinterface_get_text (enum UI_ITEM ui_item)
 void userinterface_set_text (enum UI_ITEM ui_item, const mchar* text)
 {
     const char* str = CST12(text);
-         if(ui_item==UI_pause_button)   gtk_button_set_label((GtkButton*)gui_pause_button  , str);
-    else if(ui_item==UI_forward_button) gtk_button_set_label((GtkButton*)gui_forward_button, str);
+         if(ui_item==UI_PAUSE_BUTTON)   gtk_button_set_label((GtkButton*)gui_pause_button  , str);
+    else if(ui_item==UI_FORWARD_BUTTON) gtk_button_set_label((GtkButton*)gui_forward_button, str);
     else
     {   GtkTextBuffer* gui_text = get_gui_text(ui_item);
         if(gui_text) gtk_text_buffer_set_text(gui_text, str, -1);

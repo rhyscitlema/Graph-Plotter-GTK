@@ -50,10 +50,10 @@ static void callback_button (GtkButton *button, gpointer data)
 
     if(0==strcmp(name, "=")) tools_do_eval(NULL);
 
-    else if(0==strcmp(name, "Prev" )) tools_get_prev();
-    else if(0==strcmp(name, "Next" )) tools_get_next();
-    else if(0==strcmp(name, "Dele" )) tools_do_delete();
-    else if(0==strcmp(name, "Clear")) tools_do_clear();
+    else if(0==strcmp(name, TEXT_PREV    )) tools_get_prev();
+    else if(0==strcmp(name, TEXT_NEXT    )) tools_get_next();
+    else if(0==strcmp(name, TEXT_DELE    )) tools_do_delete();
+    else if(0==strcmp(name, TEXT_CLEAR   )) tools_do_clear();
 
     else if(0==strcmp(name, TEXT_PAUSE   )) tools_do_pause(true);
     else if(0==strcmp(name, TEXT_RESUME  )) tools_do_pause(false);
@@ -82,7 +82,7 @@ static gboolean on_time_text (GtkWidget* widget, GdkEvent *event, gpointer data)
 {
     int key = ((GdkEventKey*)event)->keyval;
     if(key!=GDK_KEY_Return) return false;
-    tools_set_time(userinterface_get_text(UI_time_text));
+    tools_set_time(NULL);
     return true;
 }
 
@@ -204,19 +204,19 @@ static void getMainWindow()
 
 
     #ifdef LIBRODT
-    gui_prev_button = gtk_button_new_with_label("Prev");
+    gui_prev_button = gtk_button_new_with_label(TEXT_PREV);
     g_signal_connect (G_OBJECT(gui_prev_button), "clicked", G_CALLBACK(callback_button), NULL);
     gtk_fixed_put(fixed, gui_prev_button, 0,0);
 
-    gui_next_button = gtk_button_new_with_label("Next");
+    gui_next_button = gtk_button_new_with_label(TEXT_NEXT);
     g_signal_connect (G_OBJECT(gui_next_button), "clicked", G_CALLBACK(callback_button), NULL);
     gtk_fixed_put(fixed, gui_next_button, 0,0);
 
-    gui_delete_button = gtk_button_new_with_label("Del");
+    gui_delete_button = gtk_button_new_with_label(TEXT_DELE);
     g_signal_connect (G_OBJECT(gui_delete_button), "clicked", G_CALLBACK(callback_button), NULL);
     gtk_fixed_put(fixed, gui_delete_button, 0,0);
 
-    gui_clear_button = gtk_button_new_with_label("Clear");
+    gui_clear_button = gtk_button_new_with_label(TEXT_CLEAR);
     g_signal_connect (G_OBJECT(gui_clear_button), "clicked", G_CALLBACK(callback_button), NULL);
     gtk_fixed_put(fixed, gui_clear_button, 0,0);
 
@@ -311,6 +311,16 @@ static void load_launched_file (int argc, char** argv)
 }
 
 
+void timer_pause_do() {}
+
+void timer_set_period_do (int period)
+{
+    g_timeout_add ( period,
+            (GSourceFunc) timer_handler_do,
+            (gpointer) gui_main_window );
+}
+
+
 int main (int argc, char** argv)
 {
     gtk_init(&argc, &argv);
@@ -319,7 +329,7 @@ int main (int argc, char** argv)
 
     getMainWindow();
 
-    timer_install(gui_main_window);
+    timer_install_do();
 
     load_launched_file(argc, argv);
 
