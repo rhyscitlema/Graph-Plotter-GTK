@@ -8,7 +8,7 @@
 
 
 
-void wait_for_user_first (const mchar* title, const mchar* message)
+void wait_for_user_first (const wchar* title, const wchar* message)
 {
     GtkWidget *dialog = gtk_message_dialog_new (
                             GTK_WINDOW(gui_main_window),
@@ -22,7 +22,7 @@ void wait_for_user_first (const mchar* title, const mchar* message)
     gtk_widget_destroy (dialog);
 }
 
-bool wait_for_confirmation (const mchar* title, const mchar* message)
+bool wait_for_confirmation (const wchar* title, const wchar* message)
 {
     GtkWidget *dialog = gtk_message_dialog_new (
                             GTK_WINDOW(gui_main_window),
@@ -33,7 +33,7 @@ bool wait_for_confirmation (const mchar* title, const mchar* message)
                             NULL);
     gtk_window_set_title (GTK_WINDOW(dialog), CST12(title));
 
-    mchar* errormessage = errorMessage();
+    wchar* errormessage = errorMessage();
     strcpy22(ErrStr0, errormessage); // save
 
     bool ret;
@@ -48,13 +48,13 @@ bool wait_for_confirmation (const mchar* title, const mchar* message)
     return ret;
 }
 
-bool wait_for_confirmation_cli (const mchar* title, const mchar* message)
+bool wait_for_confirmation_cli (const wchar* title, const wchar* message)
 {
     char buffer[100];
     printf("\r\n>>>Title: "); puts2(title);
     printf(">>>Message:\r\n"); puts2(message);
     printf("Enter 1 for 'YES' or anything else for 'NO' : ");
-    fgets(buffer, sizeof(buffer), stdin);
+    if(!fgets(buffer, sizeof(buffer), stdin)) return false;
     return (buffer[0]=='1' && (buffer[1]=='\n' || buffer[1]==0));
 }
 
@@ -76,9 +76,9 @@ static GtkTextBuffer* get_gui_text (enum UI_ITEM ui_item)
     return text_buffer;
 }
 
-static mchar* buffer = NULL;
+static wchar* buffer = NULL;
 
-const mchar* userinterface_get_text (enum UI_ITEM ui_item)
+const wchar* userinterface_get_text (enum UI_ITEM ui_item)
 {
     const char* str=NULL;
     GtkTextIter start, stop;
@@ -96,7 +96,7 @@ const mchar* userinterface_get_text (enum UI_ITEM ui_item)
     return buffer;
 }
 
-void userinterface_set_text (enum UI_ITEM ui_item, const mchar* text)
+void userinterface_set_text (enum UI_ITEM ui_item, const wchar* text)
 {
     const char* str = CST12(text);
          if(ui_item==UI_PAUSE_BUTTON)   gtk_button_set_label((GtkButton*)gui_pause_button  , str);

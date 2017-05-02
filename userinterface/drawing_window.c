@@ -140,7 +140,7 @@ DrawingWindow drawing_window_new ()
 
 
 
-void drawing_window_name (DrawingWindow dW, const mchar* name)
+void drawing_window_name (DrawingWindow dW, const wchar* name)
 {
     DrawWindow* dw = (DrawWindow*)dW;
     char title[300];

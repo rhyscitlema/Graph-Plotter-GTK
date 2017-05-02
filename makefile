@@ -39,6 +39,7 @@ CC_FLAGS = `pkg-config --cflags $(GTK)` \
            -I$(LIBMFET) \
            -I$(LIBRODT) \
            -Wall \
+           -pedantic \
            $(CFLAGS)
 
 # linker flags

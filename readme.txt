@@ -20,8 +20,13 @@ then install GTK+-3.0
 
 then execute: make
 
+
 To run, execute:
-    ./GraphPlotter3D example.rodt
+    ./GraphPlotter3D
+or  ./GraphPlotter3D example.rodt
+
+To delete all created files, execute:
+    make clean
 
 
 Provided by Rhyscitlema

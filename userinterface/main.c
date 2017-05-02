@@ -48,7 +48,7 @@ static void callback_button (GtkButton *button, gpointer data)
 {
     const char* name = gtk_button_get_label(button);
 
-    if(0==strcmp(name, "=")) tools_do_eval(NULL);
+         if(0==strcmp(name, TEXT_EVAL    )) tools_do_eval(NULL);
 
     else if(0==strcmp(name, TEXT_PREV    )) tools_get_prev();
     else if(0==strcmp(name, TEXT_NEXT    )) tools_get_next();
@@ -64,7 +64,7 @@ static void callback_button (GtkButton *button, gpointer data)
 
     else if(0==strcmp(name, TEXT_CALC)) calculator_evaluate_calc(true);
 
-    else display_message(CST21(" Unrecognised Action Event in User Interface\n"));
+    else display_message(L"Unrecognised Action Event in User Interface\r\n");
 }
 
 
@@ -189,7 +189,7 @@ static void getMainWindow()
     gtk_fixed_put(fixed, gui_main_text, 0,0);
 
 
-    gui_eval_button = gtk_button_new_with_label("=");
+    gui_eval_button = gtk_button_new_with_label(TEXT_EVAL);
     g_signal_connect (G_OBJECT(gui_eval_button), "clicked", G_CALLBACK(callback_button), NULL);
     gtk_fixed_put(fixed, gui_eval_button, 0,0);
 
@@ -273,9 +273,9 @@ static void getMainWindow()
 }
 
 
-static bool on_launch_or_drop_file (const mchar* fileName)
+static bool on_launch_or_drop_file (const wchar* fileName)
 {
-    const mchar* extension;
+    const wchar* extension;
     if(!open_file(fileName)) { display_message(errorMessage()); return false; }
     get_path_from_path_name (default_file_path, fileName);
     extension = get_extension_from_name(NULL, fileName);
@@ -287,7 +287,7 @@ static bool on_launch_or_drop_file (const mchar* fileName)
 
 static void load_launched_file (int argc, char** argv)
 {
-    mchar str[MAX_PATH_SIZE];
+    wchar str[MAX_PATH_SIZE];
     int i;
     for(i=1; i<argc; i++)
     {
