@@ -19,7 +19,7 @@ LIBALGO = ../algorithms
 LIB_STD = ../lib_std
 LIBRFET = ../librfet
 LIBRODT = ../librodt
-LIBRWIF = ../../../read_write_image_file
+LIBRWIF = ../read_write_image_file
 
 #-------------------------------------------------
 
