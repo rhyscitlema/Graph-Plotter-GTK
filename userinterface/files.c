@@ -17,10 +17,11 @@ bool file_exists_get() { return file_exists; }
 
 bool open_file (const wchar* fileName)
 {
-    wchar* fileContent = NULL;
-    if(!Openfile (fileName, &fileContent, 0))
+    Array2 content={0};
+    if((content = FileOpen2(fileName, content)).size<=0)
     { sprintf2(errorMessage(), L"Error: cannot open file '%s'\n", fileName); return false; }
-    display_main_text(fileContent);
-    mchar_free(fileContent);
+    display_main_text(content.data);
+    wchar_free(content.data);
     return true;
 }
+

@@ -11,7 +11,7 @@ To compile with GCC:
 first get the folders:
     * ../algorithms
     * ../lib_std
-    * ../libmfet
+    * ../librfet
     * ../librodt
     * ../read_write_image_file
 

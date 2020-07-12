@@ -5,7 +5,7 @@
 #include <mouse.h>
 
 
-static int GDK_KEY_TO_MFET_KEY (int KEY)
+static int GDK_KEY_TO_RFET_KEY (int KEY)
 {
     if(('0'<=KEY && KEY<='9')
     || ('A'<=KEY && KEY<='Z')
@@ -66,7 +66,7 @@ static int GDK_KEY_TO_MFET_KEY (int KEY)
 
 gboolean keyboard_input_event (GtkWidget* widget, GdkEvent *event, void* notused)
 {
-    int key = GDK_KEY_TO_MFET_KEY(((GdkEventKey*)event)->keyval);
+    int key = GDK_KEY_TO_RFET_KEY(((GdkEventKey*)event)->keyval);
     bool pressed = event->type == GDK_KEY_PRESS;
     return on_key_event(key, pressed);
 }

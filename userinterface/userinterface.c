@@ -109,6 +109,6 @@ void userinterface_set_text (enum UI_ITEM ui_item, const wchar* text)
 
 void userinterface_clean ()
 {
-    mchar_free(buffer); buffer=NULL;
+    wchar_free(buffer); buffer=NULL;
 }
 

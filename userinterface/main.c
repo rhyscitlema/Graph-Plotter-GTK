@@ -280,7 +280,7 @@ static bool on_launch_or_drop_file (const wchar* fileName)
     get_path_from_path_name (default_file_path, fileName);
     extension = get_extension_from_name(NULL, fileName);
     if(0==strcmp21(extension, "rodt")
-    || 0==strcmp21(extension, "mfet"))
+    || 0==strcmp21(extension, "rfet"))
         tools_do_eval(get_name_from_path_name(NULL,fileName));
     return true;
 }
@@ -298,8 +298,8 @@ static void load_launched_file (int argc, char** argv)
     {
         #ifdef LIBRODT
         strcpy21(str, "\r\n To get started:\r\n");
-        strcat21(str, "\r\n Drag-and-drop to open an MFET or RODT File, or,\r\n");
-        strcat21(str, "\r\n Launch the software from an MFET or RODT file, or,\r\n");
+        strcat21(str, "\r\n Drag-and-drop to open an RFET or RODT File, or,\r\n");
+        strcat21(str, "\r\n Launch the software from an RFET or RODT file, or,\r\n");
         strcat21(str, "\r\n Go to Menu -> File -> Open... then do Evaluate.\r\n");
         display_main_text(str);
         #endif
