@@ -2,26 +2,23 @@
     files.c
 */
 
-#include "files.h"
+#include <files.h>
 #include <userinterface.h>
 #include <tools.h>
 #include <_stdio.h>
 
 
-static wchar file_name [MAX_PATH_SIZE];
-static bool file_exists = false;
-
-const wchar* file_name_get() { return file_name; }
-bool file_exists_get() { return file_exists; }
+static wchar g_file_name[MAX_PATH_LEN+1];
+const wchar* get_file_name() { return g_file_name[0] ? g_file_name : NULL; }
 
 
 bool open_file (const wchar* fileName)
 {
-    Array2 content={0};
-    if((content = FileOpen2(fileName, content)).size<=0)
-    { sprintf2(errorMessage(), L"Error: cannot open file '%s'\n", fileName); return false; }
-    display_main_text(content.data);
-    wchar_free(content.data);
+    value stack = stackArray();
+    if(VERROR(FileOpen2(fileName, stack)))
+    { display_message(getMessage(vGet(stack))); return false; }
+    strcpy22(g_file_name, fileName);
+    display_main_text(getStr2(vGet(stack)));
     return true;
 }
 

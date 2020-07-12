@@ -92,20 +92,21 @@ static void drawing_window_resize (DrawWindow *dw)
     drawing_window_resize_do(dw);
 }
 
+static void dw_free (DrawWindow* dw) { _free(dw, "DrawingWindow"); }
+
 
 
 DrawingWindow drawing_window_new ()
 {
-    DrawWindow *dw = (DrawWindow*) _malloc (sizeof(DrawWindow));
-    memory_alloc("DrawingWindow");
+    DrawWindow *dw = (DrawWindow*) _malloc (sizeof(DrawWindow), "DrawingWindow");
 
     /* set drawing window */
     dw->window = gtk_window_new (GTK_WINDOW_TOPLEVEL);
-    if(dw->window == NULL) { _free(dw); return NULL; }
+    if(!dw->window) { dw_free(dw); return NULL; }
 
     /* set drawing area */
     dw->drawing_area = gtk_drawing_area_new();
-    if(dw->drawing_area == NULL) { gtk_widget_destroy(dw->window); _free(dw); return NULL; }
+    if(dw->drawing_area == NULL) { gtk_widget_destroy(dw->window); dw_free(dw); return NULL; }
 
     g_signal_connect_swapped (G_OBJECT(dw->window), "destroy", G_CALLBACK(drawing_window_close), dw);
     g_signal_connect_swapped (G_OBJECT(dw->window), "configure-event", G_CALLBACK(drawing_window_resize), dw);
@@ -194,6 +195,5 @@ void drawing_window_remove (DrawingWindow dW)
     dw->cairo_surface = NULL;
     dw->drawing_area = NULL;
     dw->window = NULL;
-    _free(dw);
-    memory_freed("DrawingWindow");
+    dw_free(dw);
 }

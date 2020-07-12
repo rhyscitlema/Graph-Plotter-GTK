@@ -2,7 +2,7 @@
 # Explanation of file structure available at:
 # http://rhyscitlema.com/applications/makefile.html
 
-CALC_OUT_FILE = RFET_Calculator
+CALC_OUT_FILE = Rhyscitlema_Calculator
 
 GP3D_OUT_FILE = GraphPlotter3D
 
@@ -19,7 +19,7 @@ LIBALGO = ../algorithms
 LIB_STD = ../lib_std
 LIBRFET = ../librfet
 LIBRODT = ../librodt
-LIBRWIF = ../read_write_image_file
+LIBRWIF = ../../../read_write_image_file
 
 #-------------------------------------------------
 
@@ -39,6 +39,7 @@ CC_FLAGS = `pkg-config --cflags $(GTK)` \
            -I$(LIBRFET) \
            -I$(LIBRODT) \
            -Wall \
+           -std=c99 \
            -pedantic \
            $(CFLAGS)
 

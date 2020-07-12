@@ -7,48 +7,47 @@
 #include <userinterface.h>
 
 
-
 void wait_for_user_first (const wchar* title, const wchar* message)
 {
+    char msg[strlen12(message)+1];
+    strcpy12(msg, message);
     GtkWidget *dialog = gtk_message_dialog_new (
                             GTK_WINDOW(gui_main_window),
                             GTK_DIALOG_MODAL,
                             GTK_MESSAGE_INFO,
                             GTK_BUTTONS_OK,
-                            CST12(message),
+                            msg,
                             NULL);
-    gtk_window_set_title (GTK_WINDOW(dialog), CST12(title));
+    gtk_window_set_title (GTK_WINDOW(dialog), C12(title));
     gtk_dialog_run (GTK_DIALOG (dialog));
     gtk_widget_destroy (dialog);
 }
 
+
 bool wait_for_confirmation (const wchar* title, const wchar* message)
 {
+    char msg[strlen12(message)+1];
+    strcpy12(msg, message);
     GtkWidget *dialog = gtk_message_dialog_new (
                             GTK_WINDOW(gui_main_window),
                             GTK_DIALOG_MODAL,
                             GTK_MESSAGE_WARNING,
                             GTK_BUTTONS_OK_CANCEL,
-                            CST12(message),
+                            msg,
                             NULL);
-    gtk_window_set_title (GTK_WINDOW(dialog), CST12(title));
-
-    wchar* errormessage = errorMessage();
-    strcpy22(ErrStr0, errormessage); // save
-
+    gtk_window_set_title (GTK_WINDOW(dialog), C12(title));
     bool ret;
     switch(gtk_dialog_run(GTK_DIALOG(dialog))) // TODO: how does this possibly sets errorMessage()[0]=0 and mainStack()[0]=... ???
     {
         case -5: ret = true; break;
         default: ret = false; break;
     }
-    strcpy22(errormessage, ErrStr0); // recover
-
     gtk_widget_destroy (dialog);
     return ret;
 }
 
-bool wait_for_confirmation_cli (const wchar* title, const wchar* message)
+
+/*bool wait_for_confirmation_cli (const wchar* title, const wchar* message)
 {
     char buffer[100];
     printf("\r\n>>>Title: "); puts2(title);
@@ -56,7 +55,7 @@ bool wait_for_confirmation_cli (const wchar* title, const wchar* message)
     printf("Enter 1 for 'YES' or anything else for 'NO' : ");
     if(!fgets(buffer, sizeof(buffer), stdin)) return false;
     return (buffer[0]=='1' && (buffer[1]=='\n' || buffer[1]==0));
-}
+}*/
 
 
 
@@ -76,7 +75,7 @@ static GtkTextBuffer* get_gui_text (enum UI_ITEM ui_item)
     return text_buffer;
 }
 
-static wchar* buffer = NULL;
+static wchar* buffer = {0};
 
 const wchar* userinterface_get_text (enum UI_ITEM ui_item)
 {
@@ -98,7 +97,7 @@ const wchar* userinterface_get_text (enum UI_ITEM ui_item)
 
 void userinterface_set_text (enum UI_ITEM ui_item, const wchar* text)
 {
-    const char* str = CST12(text);
+    const char* str = C12(text);
          if(ui_item==UI_PAUSE_BUTTON)   gtk_button_set_label((GtkButton*)gui_pause_button  , str);
     else if(ui_item==UI_FORWARD_BUTTON) gtk_button_set_label((GtkButton*)gui_forward_button, str);
     else
@@ -109,6 +108,6 @@ void userinterface_set_text (enum UI_ITEM ui_item, const wchar* text)
 
 void userinterface_clean ()
 {
-    wchar_free(buffer); buffer=NULL;
+    buffer = str2_free(buffer);
 }
 

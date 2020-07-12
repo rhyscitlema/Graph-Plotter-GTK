@@ -3,14 +3,14 @@
 */
 
 #include "main.h"
-#include "files.h"
+#include <files.h>
 #include <tools.h>
 #include <timer.h>
 #include <userinterface.h>
 #include <_texts.h>
 #include <_stdio.h>
 
-int main_window_width = 500;
+int main_window_width  = 500;
 int main_window_height = 500;
 
 GtkWidget *gui_main_window;
@@ -43,6 +43,11 @@ GtkTextBuffer *gui_time_text_buffer;
 GtkTextBuffer *gui_calc_input_buffer;
 GtkTextBuffer *gui_calc_result_buffer;
 
+#define ALLOW_PATH
+#ifdef LIBRODT
+#define ALLOW_CALC
+#endif
+
 
 static void callback_button (GtkButton *button, gpointer data)
 {
@@ -62,13 +67,13 @@ static void callback_button (GtkButton *button, gpointer data)
     else if(0==strcmp(name, TEXT_LOWER   )) tools_lower_period();
     else if(0==strcmp(name, TEXT_HIGHER  )) tools_higher_period();
 
-    else if(0==strcmp(name, TEXT_CALC)) calculator_evaluate_calc(true);
+    else if(0==strcmp(name, TEXT_CALC)) calculator_evaluate_calc(NULL, true);
 
     else display_message(L"Unrecognised Action Event in User Interface\r\n");
 }
 
 
-#ifdef LIBRODT
+#ifdef ALLOW_PATH
 static gboolean on_path_text (GtkWidget* widget, GdkEvent *event, gpointer data)
 {
     int key = ((GdkEventKey*)event)->keyval;
@@ -121,9 +126,11 @@ static inline void do_resize (GtkWidget *widget, int L[4])
 
 bool main_window_resize ()
 {
+    uint32_t stack[10000];
     int i=0, layout[20][4];
-    if(!tools_uidt_eval(layout, NULL))
-    { display_message(errorMessage()); return false; }
+
+    if(!tools_uidt_eval(stack, layout, NULL))
+    { display_message(getMessage(vGet(stack))); return false; }
 
     if(!gui_main_text) return true;
     do_resize (gui_main_text       , layout[i++]);
@@ -132,7 +139,7 @@ bool main_window_resize ()
     do_resize (gui_mesg_text       , layout[i++]);
     do_resize (gui_lock_button     , layout[i++]);
 
-    #ifdef LIBRODT
+    #ifdef ALLOW_PATH
     do_resize (gui_prev_button     , layout[i++]);
     do_resize (gui_next_button     , layout[i++]);
     do_resize (gui_delete_button   , layout[i++]);
@@ -146,7 +153,7 @@ bool main_window_resize ()
     do_resize (gui_higher_button   , layout[i++]);
     do_resize (gui_time_text       , layout[i++]);
 
-    #ifdef LIBRODT
+    #ifdef ALLOW_CALC
     do_resize (gui_calc_button     , layout[i++]);
     do_resize (gui_calc_input      , layout[i++]);
     do_resize (gui_calc_result     , layout[i++]);
@@ -168,12 +175,21 @@ static void on_main_window_resize (GtkWindow* window)
     main_window_resize();
 }
 
+
+#ifdef LIBRODT
+static const char* window_title = "Rhyscitlema Graph Plotter 3D";
+static const char* window_icon = "userinterface/icon_rodt.png";
+#else
+static const char* window_title = "Rhyscitlema Calculator";
+static const char* window_icon = "userinterface/icon_rfet.png";
+#endif
+
 static void getMainWindow()
 {
     GtkWidget *window = gtk_window_new(GTK_WINDOW_TOPLEVEL);
     gtk_window_set_position(GTK_WINDOW(window), GTK_WIN_POS_CENTER);
-    gtk_window_set_title(GTK_WINDOW(window), "Rhyscitlema Graph Plotter 3D");
-    gtk_window_set_icon(GTK_WINDOW(window), gdk_pixbuf_new_from_file("userinterface/icon.png", NULL));
+    gtk_window_set_title(GTK_WINDOW(window), window_title);
+    gtk_window_set_icon(GTK_WINDOW(window), gdk_pixbuf_new_from_file(window_icon, NULL));
     //gtk_container_set_border_width(GTK_CONTAINER(window), 2);
     g_signal_connect_swapped(G_OBJECT(window), "destroy", G_CALLBACK(gtk_main_quit), G_OBJECT(window));
     g_signal_connect_swapped(G_OBJECT(window), "configure-event", G_CALLBACK(on_main_window_resize), window);
@@ -203,7 +219,7 @@ static void getMainWindow()
     gtk_fixed_put(fixed, gui_lock_button, 0,0);
 
 
-    #ifdef LIBRODT
+    #ifdef ALLOW_PATH
     gui_prev_button = gtk_button_new_with_label(TEXT_PREV);
     g_signal_connect (G_OBJECT(gui_prev_button), "clicked", G_CALLBACK(callback_button), NULL);
     gtk_fixed_put(fixed, gui_prev_button, 0,0);
@@ -249,13 +265,15 @@ static void getMainWindow()
     gtk_fixed_put(fixed, gui_time_text, 0,0);
 
 
-    #ifdef LIBRODT
+    #ifdef ALLOW_CALC
     gui_calc_button = gtk_button_new_with_label(TEXT_CALC);
     g_signal_connect (G_OBJECT(gui_calc_button), "clicked", G_CALLBACK(callback_button), NULL);
     gtk_fixed_put(fixed, gui_calc_button, 0,0);
 
     gui_calc_input_buffer = gtk_text_buffer_new(NULL);
-    gtk_text_buffer_set_text (gui_calc_input_buffer, " LocalPointedPoint", -1);
+    #ifdef LIBRODT
+    gtk_text_buffer_set_text (gui_calc_input_buffer, " PointedPoint,\r\n PointedObject", -1);
+    #endif
     gui_calc_input = gtk_text_view_in_scrolled_window_new (gui_calc_input_buffer, true, true);
     gtk_fixed_put(fixed, gui_calc_input, 0,0);
 
@@ -273,39 +291,38 @@ static void getMainWindow()
 }
 
 
-static bool on_launch_or_drop_file (const wchar* fileName)
+static void on_launch_or_drop_file (const wchar* fileName)
 {
-    const wchar* extension;
-    if(!open_file(fileName)) { display_message(errorMessage()); return false; }
-    get_path_from_path_name (default_file_path, fileName);
-    extension = get_extension_from_name(NULL, fileName);
+    if(!open_file(fileName)) return;
+    get_path_from_path_name(fileName, default_file_path());
+    const wchar* extension = get_extension_from_name(fileName);
+
     if(0==strcmp21(extension, "rodt")
     || 0==strcmp21(extension, "rfet"))
-        tools_do_eval(get_name_from_path_name(NULL,fileName));
-    return true;
+        tools_do_eval(get_name_from_path_name(fileName));
 }
 
 static void load_launched_file (int argc, char** argv)
 {
-    wchar str[MAX_PATH_SIZE];
+    wchar name[MAX_PATH_LEN+1];
     int i;
     for(i=1; i<argc; i++)
     {
-        strcpy21(str, argv[i]);
-        on_launch_or_drop_file(str);
+        strcpy21(name, argv[i]);
+        on_launch_or_drop_file(name);
     }
     if(argc<=1)
     {
         #ifdef LIBRODT
-        strcpy21(str, "\r\n To get started:\r\n");
-        strcat21(str, "\r\n Drag-and-drop to open an RFET or RODT File, or,\r\n");
-        strcat21(str, "\r\n Launch the software from an RFET or RODT file, or,\r\n");
-        strcat21(str, "\r\n Go to Menu -> File -> Open... then do Evaluate.\r\n");
-        display_main_text(str);
+        display_main_text(
+           L"\r\n To get started:\r\n"
+            "\r\n Drag-and-drop a .rfet or .rodt file to open it, or,\r\n"
+            "\r\n Launch the software from a .rfet or .rodt file, or,\r\n"
+            "\r\n Go to Menu -> File -> Open... then do Evaluate (=).\r\n");
         #endif
     }
-    #ifdef LIBRODT
-    calculator_evaluate_calc(true);
+    #ifdef ALLOW_CALC
+    calculator_evaluate_calc(NULL, true);
     #endif
     userinterface_update();
 }
@@ -325,7 +342,7 @@ int main (int argc, char** argv)
 {
     gtk_init(&argc, &argv);
 
-    tools_init(10000000,NULL);
+    tools_init(10000000, NULL);
 
     getMainWindow();
 
