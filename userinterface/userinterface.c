@@ -6,8 +6,12 @@
 #include <_stdio.h>
 #include <userinterface.h>
 
+static wchar* buffer = NULL;
 
-void wait_for_user_first (const wchar* title, const wchar* message)
+
+#ifndef CLI_DIALOG
+
+void user_alert (const wchar* title, const wchar* message)
 {
 	char msg[strlen12(message)+1];
 	strcpy12(msg, message);
@@ -26,7 +30,7 @@ void wait_for_user_first (const wchar* title, const wchar* message)
 }
 
 
-bool wait_for_confirmation (const wchar* title, const wchar* message)
+bool user_confirm (const wchar* title, const wchar* message)
 {
 	char msg[strlen12(message)+1];
 	strcpy12(msg, message);
@@ -43,23 +47,43 @@ bool wait_for_confirmation (const wchar* title, const wchar* message)
 	bool ret;
 	switch(gtk_dialog_run(GTK_DIALOG(dialog))) // TODO: how does this possibly sets errorMessage()[0]=0 and mainStack()[0]=... ???
 	{
-		case -5: ret = true; break;
+		case -5: ret = true; break; // TODO: remove hard-coding of OK == -5
 		default: ret = false; break;
 	}
 	gtk_widget_destroy (dialog);
 	return ret;
 }
 
+#else
 
-/*bool wait_for_confirmation_cli (const wchar* title, const wchar* message)
+void user_alert (const wchar* title, const wchar* message)
 {
-	char buffer[100];
-	printf("\r\n>>>Title: "); puts2(title);
-	printf(">>>Message:\r\n"); puts2(message);
-	printf("Enter 1 for 'YES' or anything else for 'NO' : ");
-	if(!fgets(buffer, sizeof(buffer), stdin)) return false;
-	return (buffer[0]=='1' && (buffer[1]=='\n' || buffer[1]==0));
-}*/
+	printf("\r\n>>> "); puts2(title); puts2(message);
+	printf("Press Enter to continue..."); getchar();
+}
+
+bool user_confirm (const wchar* title, const wchar* message)
+{
+	char buffer[10];
+	printf("\r\n>>> "); puts2(title); puts2(message);
+	printf("Enter ok / <anything> : ");
+	if(!fgets(buffer, sizeof(buffer), stdin))
+		return false;
+	else return 0==strcmp(buffer, "ok\n");
+}
+
+#endif
+
+
+const wchar* user_prompt (const wchar* title, const wchar* message, const wchar* entry)
+{
+	buffer = wchar_alloc (buffer, 100000);
+	strcpy22(buffer, entry);
+	return buffer;
+}
+
+
+bool setMenuItemTextOfConvertText (int item, const wchar* text) { return false; }
 
 
 
@@ -78,8 +102,6 @@ static GtkTextBuffer* get_gui_text (enum UI_ITEM ui_item)
 	}
 	return text_buffer;
 }
-
-static wchar* buffer = {0};
 
 const wchar* userinterface_get_text (enum UI_ITEM ui_item)
 {
@@ -113,6 +135,6 @@ void userinterface_set_text (enum UI_ITEM ui_item, const wchar* text)
 
 void userinterface_clean ()
 {
-	buffer = str2_free(buffer);
+	buffer = wchar_free(buffer);
 }
 

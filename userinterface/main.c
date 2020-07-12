@@ -326,7 +326,7 @@ static void load_launched_file (int argc, char** argv)
 			"\r\n Drag-and-drop a .rfet or .rodt file to open it, or,\r\n"
 			"\r\n Launch the software from a .rfet or .rodt file, or,\r\n"
 			"\r\n Go to Menu -> File -> Open... then do Evaluate (=).\r\n"
-			"}#\r\n");
+			"}#");
 		#endif
 	}
 	#ifdef ALLOW_CALC
