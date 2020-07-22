@@ -6,14 +6,14 @@ CALC_OUT_FILE = Rhyscitlema_Calculator
 
 GP3D_OUT_FILE = GraphPlotter3D
 
-CALC_OBJ_FILES = userinterface/main.o \
-                 userinterface/files.o \
-                 userinterface/keyboard.o \
-                 userinterface/userinterface.o
+CALC_OBJ_FILES = main.o \
+                 files.o \
+                 keyboard.o \
+                 userinterface.o
 
 GP3D_OBJ_FILES = $(CALC_OBJ_FILES) \
-                 userinterface/drawing_window.o
-                 #userinterface/mthread.o
+                 drawing_window.o
+                 # mthread.o
 
 LIBALGO = ../algorithms
 LIB_STD = ../lib_std
@@ -94,7 +94,7 @@ clean:
 	cd $(LIBRFET) && $(MAKE) clean
 	cd $(LIBRODT) && $(MAKE) clean
 	cd $(LIBRWIF) && $(MAKE) clean
-	$(RM) userinterface/*.o $(CALC_OUT_FILE) $(GP3D_OUT_FILE)
+	$(RM) *.o $(CALC_OUT_FILE) $(GP3D_OUT_FILE)
 
 #-------------------------------------------------
 
